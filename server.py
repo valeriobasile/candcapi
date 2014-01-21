@@ -2,8 +2,13 @@ import web
 import subprocess as sub
 from config import config
 import logging as log
+from drg import png
+
+TMPPNG = 'tmp.png'
 
 urls = ('/boxer', 'boxer',
+        '/boxert', 'boxert',
+        '/drg', 'drg',
         '/candc', 'candc',
         '/t', 't')
 app = web.application(urls, globals())
@@ -55,6 +60,24 @@ class boxer:
         options = web.input(_method='get')
         
         return pipeline(data, ['tokenizer', 'soap_client', 'boxer'], options)
+
+class boxert:
+    def POST(self):
+        # get raw text
+        data = web.data()
+        options = web.input(_method='get')
+        
+        return pipeline(data, ['soap_client', 'boxer'], options)
+
+class drg:
+    def POST(self):
+        # get raw text
+        data = web.data()
+        options = web.input(_method='get')
+        
+        drg = pipeline(data, ['tokenizer', 'soap_client', 'boxer'], options)
+        png(drg.split('\n'), TMPPNG)
+        return open(TMPPNG,"rb").read()
 
 if __name__ == "__main__":
     app.run()
