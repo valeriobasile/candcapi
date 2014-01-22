@@ -4,20 +4,6 @@ import sys
 from unboxer.drg import DRGParser
 import pygraphviz
 
-def normalize_node_name(name):
-    return name
-    components = name.split(":")
-    if len(components)==1:
-        return name
-    elif len(components)==2:
-        return components[1]
-    elif len(components)==3:
-        if "(" in name:
-            return components[2]
-        else:
-            return components[1]
-    return name
-
 def node_color(node):
     color = "white"
     if node.type == "discourse_unit":
@@ -48,7 +34,7 @@ def png(drg, pngfile):
             taillabel = "%s" % tup.token_index    
         else:
             taillabel = ""
-
+    
         if len(tup.tokens) > 0:
             headlabel = "\\n\"%s\"" % " ".join(tup.tokens)
         else:

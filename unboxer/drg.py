@@ -384,8 +384,7 @@ class DRGParser:
     # object representing an edge
     def parse_tup_line(self, line, debug):
         tup = DRGTuple()
-        fields = line[:-1].decode("utf-8").split()
-
+        fields = line.decode("utf-8").split()
         tup.edge_type = u"{0}".format(fields[1].split("-")[0])
         
         if self.drg.get_node_by_name(fields[0]) == None:
