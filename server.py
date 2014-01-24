@@ -6,14 +6,20 @@ from drg import png
 
 TMPPNG = 'tmp.png'
 
-urls = ('/boxer', 'boxer',
-        '/boxert', 'boxert',
-        '/drg', 'drg',
-        '/candc', 'candc',
-        '/t', 't')
+urls = (
+        '/(.+)/version', 'version',
+        '/(.+)/pipeline', 'pipeline',
+        '/(.+)/boxer', 'boxer',
+        '/(.+)/drg', 'drg',
+        '/(.+)/candc', 'candc',
+        '/(.+)/t', 't',
+        '/(.+)/tcandc', 'tcandc',
+        '/(.+)/candcboxer', 'candcboxer',
+)
+
 app = web.application(urls, globals())
 
-def pipeline(data, steps, options=None):
+def run(data, steps, options=None):
     # command lines creation
     cmdline = {step : [config[step]]+config['{}_opts'.format(step)] 
                        for step in steps}
@@ -38,45 +44,46 @@ def pipeline(data, steps, options=None):
     return data
 
 class t:
-    def POST(self):
-        # get raw text
-        data = web.data()
-        
-        # just send back the output as it is    
-        return pipeline(data, ['tokenizer'])
+    def POST(self, output):
+        return run(web.data(), ['tokenizer'])
         
 class candc:
-    def POST(self):
-        # get raw text
-        data = web.data()
+    def POST(self, output):
+        return run(web.data(), ['soap_client'])
         
-        # just send back the output as it is    
-        return pipeline(data, ['tokenizer', 'soap_client'])
+class tcandc:
+    def POST(self, output):
+        return run(web.data(), ['tokenizer', 'soap_client'])
         
 class boxer:
-    def POST(self):
-        # get raw text
-        data = web.data()
+    def POST(self, output):
         options = web.input(_method='get')
+        return run(web.data(), ['boxer'], options)
         
-        return pipeline(data, ['tokenizer', 'soap_client', 'boxer'], options)
+class pipeline:
+    def POST(self, output):
+        options = web.input(_method='get')
+        return run(web.data(), ['tokenizer', 'soap_client', 'boxer'], options)
 
-class boxert:
-    def POST(self):
-        # get raw text
+class candcboxer:
+    def POST(self, output):
         data = web.data()
         options = web.input(_method='get')
-        
-        return pipeline(data, ['soap_client', 'boxer'], options)
+        return run(data, ['soap_client', 'boxer'], options)
+
+class version:
+    def POST(self, output):
+        data = web.data()
+        options = {'version' : 'true'}
+        # this returns only stderr
+        return run(data, ['soap_client', 'boxer'], options)
 
 class drg:
-    def POST(self):
-        # get raw text
-        data = web.data()
+    def POST(self, output):
         options = web.input(_method='get')
-        
-        drg = pipeline(data, ['tokenizer', 'soap_client', 'boxer'], options)
-        png(drg.split('\n'), TMPPNG)
+        options = {'semantics' : 'drg'}
+        drg = run(web.data(), ['tokenizer', 'soap_client', 'boxer'], options)
+        png(drg.split('\n')[:-2], TMPPNG)
         return open(TMPPNG,"rb").read()
 
 if __name__ == "__main__":
