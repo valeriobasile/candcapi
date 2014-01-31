@@ -3,6 +3,7 @@ import subprocess as sub
 from config import config
 import logging as log
 from drg import png
+import json
 
 TMPPNG = 'tmp.png'
 
@@ -10,7 +11,7 @@ urls = (
         '/(.+)/version', 'version',
         '/(.+)/pipeline', 'pipeline',
         '/(.+)/boxer', 'boxer',
-        '/(.+)/drg', 'drg',
+        '/drg', 'drg',
         '/(.+)/candc', 'candc',
         '/(.+)/t', 't',
         '/(.+)/tcandc', 'tcandc',
@@ -19,7 +20,22 @@ urls = (
 
 app = web.application(urls, globals())
 
+def output(data, steps, options, form):
+    out, err = run(data, steps, options)
+    if form == 'json':
+        return json.dumps({'out' : out, 'err' : err})
+    # raw -> return stdout
+    else:
+        if 'version' in options:
+            return err
+        else:
+            return out
+
 def run(data, steps, options=None):
+    """Creates a Unix-like pipeline with 'data' as input. The pipeline is made
+by the processes in the 'steps' list. Returns a 2-tuple 
+(standard output, standard error)."""
+    
     # command lines creation
     cmdline = {step : [config[step]]+config['{}_opts'.format(step)] 
                        for step in steps}
@@ -28,7 +44,8 @@ def run(data, steps, options=None):
         if options and step=='boxer':
             for key, value in options.iteritems():
                 cmdline[step].append('--{}'.format(key))
-                cmdline[step].append(value)
+                if key != 'version':
+                    cmdline[step].append(value)
         
         # call the command line
         try:
@@ -40,49 +57,49 @@ def run(data, steps, options=None):
         except:
             log.exception('cannot communicate with {0} {1}'.format(
                             step, config[step]))
-            return "cannot communicate with {}\n".format(step)
-    return data
+            return None, "cannot communicate with {}\n".format(step)
+    return data, err
 
 class t:
-    def POST(self, output):
-        return run(web.data(), ['tokenizer'])
+    def POST(self, form):
+        return output(web.data(), ['tokenizer'], None, form)
         
 class candc:
-    def POST(self, output):
-        return run(web.data(), ['soap_client'])
+    def POST(self, form):
+        return output(web.data(), ['soap_client'], None, form)
         
 class tcandc:
-    def POST(self, output):
-        return run(web.data(), ['tokenizer', 'soap_client'])
+    def POST(self, form):
+        return output(web.data(), ['tokenizer', 'soap_client'], None, form)
         
 class boxer:
-    def POST(self, output):
+    def POST(self, form):
         options = web.input(_method='get')
-        return run(web.data(), ['boxer'], options)
+        return output(web.data(), ['boxer'], options, form)
         
 class pipeline:
-    def POST(self, output):
+    def POST(self, form):
         options = web.input(_method='get')
-        return run(web.data(), ['tokenizer', 'soap_client', 'boxer'], options)
+        return output(web.data(), ['tokenizer', 'soap_client', 'boxer'], options, form)
 
 class candcboxer:
-    def POST(self, output):
+    def POST(self, form):
         data = web.data()
         options = web.input(_method='get')
-        return run(data, ['soap_client', 'boxer'], options)
+        return output(data, ['soap_client', 'boxer'], options, form)
 
 class version:
-    def POST(self, output):
+    def POST(self, form):
         data = web.data()
         options = {'version' : 'true'}
         # this returns only stderr
-        return run(data, ['soap_client', 'boxer'], options)
-
+        return output(data, ['soap_client', 'boxer'], options, form)
+        
 class drg:
-    def POST(self, output):
+    def POST(self):
         options = web.input(_method='get')
         options = {'semantics' : 'drg'}
-        drg = run(web.data(), ['tokenizer', 'soap_client', 'boxer'], options)
+        drg, _ = run(web.data(), ['tokenizer', 'soap_client', 'boxer'], options)
         png(drg.split('\n')[:-2], TMPPNG)
         return open(TMPPNG,"rb").read()
 
