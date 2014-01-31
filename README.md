@@ -1,7 +1,7 @@
 candcapi - HTTP API to access the C&amp;C/Boxer pipeline.
 =========================================================
 
-[C\&C tools](http://svn.ask.it.usyd.edu.au/trac/candc "C\&C tools") 
+[C&C tools](http://svn.ask.it.usyd.edu.au/trac/candc "C\&C tools") 
 is a suite of software for linguistic analysis of the English language, 
 including a tokenizer, several taggers and a parser.
 [Boxer](http://svn.ask.it.usyd.edu.au/trac/candc/wiki/boxer "Boxer") 
@@ -55,7 +55,7 @@ to the **standard output** of the http://www.let.rug.nl/basile/papers/BasileBos2
 The JSON version is a simple JSON structure containing both the
 standard output and the standard error:
 
-`{"err": "standard error", "out": "standard output"}`
+    {"err": "standard error", "out": "standard output"}
 
 Other URLs
 ----------
@@ -63,9 +63,9 @@ Other URLs
 It is possible to access the single tools separately by using the
 folliowing URLs:
 
-`$CANDCAPI/$FORMAT/t`
-`$CANDCAPI/$FORMAT/candc`
-`$CANDCAPI/$FORMAT/boxer`
+    $CANDCAPI/$FORMAT/t
+    $CANDCAPI/$FORMAT/candc
+    $CANDCAPI/$FORMAT/boxer
 
 The tokenizer _t_ takes in input a normal text. The parser _candc_ takes in 
 input a tokenized text, i.e. a list of words separated by whitespace.
@@ -73,26 +73,27 @@ _boxer_ takes in input the Prolog output of the C\&C parser.
 For convenience, also the combination of intermediate steps of the
 pipeline are included in the API:
 
-`$CANDCAPI/$FORMAT/tcandc`
-`$CANDCAPI/$FORMAT/candcboxer`
+    $CANDCAPI/$FORMAT/tcandc
+    $CANDCAPI/$FORMAT/candcboxer
 
 respectively, the call the combination tokenizer/parser and parser/Boxer.
 
 To see the version af C\&C/Boxer used by the API:
 
-`$CANDCAPI/$FORMAT/version`
+    $CANDCAPI/$FORMAT/version
         
 Graphical output
 ----------------
 
 Discourse Representation Graph is a semantic formalism described in
 the paper
-[V. Basile, J. Bos (2011): Towards Generating Text from Discourse Representation Structures](http://www.let.rug.nl/basile/papers/BasileBos2011ENLG.pdf).
+[V. Basile, J. Bos: Towards Generating Text from Discourse Representation Structures](http://www.let.rug.nl/basile/papers/BasileBos2011ENLG.pdf "").
 The C&amp;C/Boxer API provides an entry point to generate a PNG image of the
 DRG of a given text:
 
-`$CANDCAPI/drg`
+    $CANDCAPI/drg
 
-The URL accepts the same GET parameter as _pipeline_.
+The URL accepts the same GET parameter as _pipeline_ and returns a raw PNG
+file.
 
 
