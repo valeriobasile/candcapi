@@ -1,6 +1,8 @@
 # general configuration
 config = dict()
-config['candc_root'] = '/home/p262301/dev/candc'
+
+# C&C tools directory
+config['candc_root'] = ''
 
 config['tokenizer'] = config['candc_root'] + '/bin/t'
 config['tokenizer_opts'] = ['--stdin']
