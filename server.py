@@ -4,6 +4,11 @@ from config import config
 import logging as log
 from drg import png
 import json
+import redis
+import time
+
+# setting up Redis for rate limit
+r = redis.StrictRedis(db=0)
 
 TMPPNG = 'tmp.png'
 
@@ -21,12 +26,26 @@ urls = (
 app = web.application(urls, globals())
 
 def output(data, steps, options, form):
-    out, err = run(data, steps, options)
+    # rate limit
+    ip = web.ctx.env['REMOTE_ADDR']
+    ts = int(time.time()) / config['interval']
+    keyname = "{}:{}".format(ip, ts)
+    current = r.get(keyname)
+    if current is None:
+        r.setex(keyname, config['interval'], 1)
+        current = r.get(keyname)
+    if current != None and eval(current) > config['rate']:
+        err = "too many requests per minute"
+        out = ''
+    else:
+        r.incr(keyname,1)
+        out, err = run(data, steps, options)
+        
     if form == 'json':
         return json.dumps({'out' : out, 'err' : err})
     # raw -> return stdout
     else:
-        if 'version' in options:
+        if options is not None and 'version' in options:
             return err
         else:
             return out
@@ -62,15 +81,15 @@ by the processes in the 'steps' list. Returns a 2-tuple
 
 class t:
     def POST(self, form):
-        return output(web.data(), ['tokenizer'], None, form)
+        return output(web.data(), ['tokenizer'], [], form)
         
 class candc:
     def POST(self, form):
-        return output(web.data(), ['soap_client'], None, form)
+        return output(web.data(), ['soap_client'], [], form)
         
 class tcandc:
     def POST(self, form):
-        return output(web.data(), ['tokenizer', 'soap_client'], None, form)
+        return output(web.data(), ['tokenizer', 'soap_client'], [], form)
         
 class boxer:
     def POST(self, form):
