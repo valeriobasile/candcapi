@@ -7,6 +7,8 @@ import json
 import redis
 import time
 
+log.basicConfig(filename='inputs.log',level=log.INFO)
+
 # setting up Redis for rate limit
 r = redis.StrictRedis(db=0)
 
@@ -99,6 +101,7 @@ class boxer:
 class pipeline:
     def POST(self, form):
         options = web.input(_method='get')
+        log.info('[pipeline] {}'.format(web.data()))
         return output(web.data(), ['tokenizer', 'soap_client', 'boxer'], options, form)
 
 class candcboxer:
@@ -120,6 +123,7 @@ class drg:
         options = {'semantics' : 'drg'}
         drg, _ = run(web.data(), ['tokenizer', 'soap_client', 'boxer'], options)
         png(drg.split('\n')[:-2], TMPPNG)
+        log.info('[drg] {}'.format(web.data()))
         return open(TMPPNG,"rb").read()
 
 if __name__ == "__main__":
