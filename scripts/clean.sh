@@ -1,5 +1,5 @@
 #!/bin/sh
-rm *~
-rm *.pyc
-rm */*~
-rm */*.pyc
+rm -f *~
+rm -f *.pyc
+rm -f */*~
+rm -f */*.pyc
