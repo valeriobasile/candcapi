@@ -1,1 +1,6 @@
 unboxer
+*.pyc
+*~
+config.py
+nohup.out
+tmp.png
