@@ -70,15 +70,17 @@ by the processes in the 'steps' list. Returns a 2-tuple
         
         # call the command line
         try:
+            log.info(cmdline[step])
             p = sub.Popen(cmdline[step],    
-                                 stdin=sub.PIPE,
-                                 stdout=sub.PIPE,
-                                 stderr=sub.PIPE)
+                          stdin=sub.PIPE,
+                          stdout=sub.PIPE,
+                          stderr=sub.PIPE)
             data, err = p.communicate(data)
         except:
             log.exception('cannot communicate with {0} {1}'.format(
                             step, config[step]))
-            return None, "cannot communicate with {}\n".format(step)
+            return None, "cannot communicate with {0} {1}\n".format(step, config[step])
+
     return data, err
 
 class t:
