@@ -1,11 +1,9 @@
 candcapi - HTTP API to access the C&amp;C/Boxer pipeline.
 =========================================================
 
-[C&C tools](http://svn.ask.it.usyd.edu.au/trac/candc "C\&C tools") 
-is a suite of software for linguistic analysis of the English language, 
+**C&C tools** is a suite of software for linguistic analysis of the English language, 
 including a tokenizer, several taggers and a parser.
-[Boxer](http://svn.ask.it.usyd.edu.au/trac/candc/wiki/boxer "Boxer") 
-is a tools for deep semantic analysis that takes in input the output
+**Boxer** is a tools for deep semantic analysis that takes in input the output
 of the C\&C parser. Together, the C&amp;C tools and Boxer form a pipeline
 toolchain to perform a complete analysis on English text.
 Here is an example:
@@ -44,14 +42,16 @@ Here's an example using the option _semantics_ to get a first-order logic formul
     $ curl -d 'Every man loves a woman' 'http://127.0.0.1:7778/raw/pipeline?semantics=fol'
     fol(1,not(some(A,and(n1man(A),not(some(B,some(C,and(r1patient(B,C),and(r1agent(B,A),and(v1love(B),n1woman(C))))))))))).
 
-For a more extensive description of the options of Boxer see the
-[official documentation](http://svn.ask.it.usyd.edu.au/trac/candc/wiki/BoxerOptions "Boxer documentation")
+<del>For a more extensive description of the options of Boxer see the
+official documentation</del>.
+
+**NOTE** the link http://svn.ask.it.usyd.edu.au/trac/candc/wiki/BoxerOptions is dead.
 
 Output formats
 --------------
 
 The API can return either raw text or JSON. The raw text version corresponds
-to the **standard output** of the http://www.let.rug.nl/basile/papers/BasileBos2011ENLG.pdf pipeline.
+to the **standard output** of the C&amp;C pipeline.
 The JSON version is a simple JSON structure containing both the
 standard output and the standard error:
 
@@ -87,7 +87,7 @@ Graphical output
 
 Discourse Representation Graph is a semantic formalism described in
 the paper
-[V. Basile, J. Bos: Towards Generating Text from Discourse Representation Structures](http://www.let.rug.nl/basile/papers/BasileBos2011ENLG.pdf "").
+[V. Basile, J. Bos: Towards Generating Text from Discourse Representation Structures](http://www.aclweb.org/anthology/W11-2819 "").
 The C&amp;C/Boxer API provides an entry point to generate a PNG image of the
 DRG of a given text:
 
